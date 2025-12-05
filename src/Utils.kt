@@ -1,9 +1,10 @@
 import java.io.File
 import java.math.BigInteger
 import java.security.MessageDigest
-import java.util.ArrayDeque
+import java.util.*
 import kotlin.math.abs
 import kotlin.math.max
+
 /**
  * The cleaner shorthand for printing output.
  */
@@ -110,6 +111,10 @@ fun manhattanDistance(
 
 data class Interval(val from: Long, val to: Long)
 
+/**
+ * Merge overlapping intervals.
+ * Takes a list of intervals and returns a list of non-overlapping intervals.
+ */
 fun mergeIntervals(intervals: List<Interval>) =
     intervals
         .sortedWith(compareBy { it.from })
