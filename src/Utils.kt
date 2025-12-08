@@ -4,6 +4,7 @@ import java.security.MessageDigest
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.max
+import kotlin.math.sqrt
 
 /**
  * The cleaner shorthand for printing output.
@@ -183,4 +184,13 @@ fun <T> List<T>.uniquePairs(): List<Pair<T, T>> {
     return this.flatMapIndexed { index, first ->
         this.subList(index + 1, this.size).map { second -> first to second }
     }
+}
+
+data class Point3D(val x: Long, val y: Long, val z: Long)
+
+fun euclideanDistance(first: Point3D, second: Point3D): Double {
+    val dx = (second.x - first.x).toDouble()
+    val dy = (second.y - first.y).toDouble()
+    val dz = (second.z - first.z).toDouble()
+    return sqrt(dx * dx + dy * dy + dz * dz)
 }
