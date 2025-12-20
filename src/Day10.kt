@@ -141,9 +141,9 @@ fun main() = runBlocking {
     }
 
     /**
-     * My own algorithm was correct but even after optimization not fast enough by far.
+     * My own algorithm was correct, but even after optimization not fast enough by far.
      * "A hundred years is a mere blink in the life of an elf. I’m patient. I can wait.”
-     * The above quote does not hold for me so searched online for faster algorithm.
+     * does not hold for me, so searched online for a faster algorithm.
      * Now using Google OR-Tools
      */
     suspend fun part2(input: List<String>): Int {
