@@ -194,3 +194,168 @@ fun euclideanDistance(first: Point3D, second: Point3D): Double {
     val dz = (second.z - first.z).toDouble()
     return sqrt(dx * dx + dy * dy + dz * dz)
 }
+
+/**
+ * Finds all paths from start to end in a directed acyclic graph (DAG).
+ *
+ * @param graph Map from node to list of adjacent nodes
+ * @param start Starting node
+ * @param end Ending node
+ * @return List of all distinct paths, where each path is a list of nodes
+ */
+fun <T> findAllPathsInDAG(
+    graph: Map<T, List<T>>,
+    start: T,
+    end: T
+): List<List<T>> {
+    val allPaths = mutableListOf<List<T>>()
+
+    fun findPaths(current: T, currentPath: List<T>) {
+        val newPath = currentPath + current
+
+        // Base case: reached the end
+        if (current == end) {
+            allPaths.add(newPath)
+            return
+        }
+
+        // Get neighbors, or empty list if no outgoing edges
+        val neighbors = graph[current] ?: emptyList()
+
+        // Recursively explore all neighbors
+        neighbors.forEach { neighbor ->
+            findPaths(neighbor, newPath)
+        }
+    }
+
+    findPaths(start, emptyList())
+    return allPaths
+}
+
+/**
+ * Counts all paths from start to end in a directed acyclic graph (DAG).
+ * Uses memoization for efficiency - much faster than generating all paths.
+ *
+ * @param graph Map from node to list of adjacent nodes
+ * @param start Starting node
+ * @param end Ending node
+ * @return Total number of distinct paths from start to end
+ */
+fun <T> countAllPathsInDAG(
+    graph: Map<T, List<T>>,
+    start: T,
+    end: T
+): Long {
+    val memo = mutableMapOf<T, Long>()
+
+    fun countPaths(current: T): Long {
+        // Base case: reached the end
+        if (current == end) return 1L
+
+        // Check memo cache
+        memo[current]?.let { return it }
+
+        // Get neighbors, or empty list if no outgoing edges
+        val neighbors = graph[current] ?: emptyList()
+
+        // Sum all paths from neighbors to end
+        val pathCount = neighbors.sumOf { neighbor -> countPaths(neighbor) }
+
+        // Cache and return
+        memo[current] = pathCount
+        return pathCount
+    }
+
+    return countPaths(start)
+}
+
+/**
+ * Finds all paths from start to end in a DAG that visit all required nodes.
+ *
+ * @param graph Map from node to list of adjacent nodes
+ * @param start Starting node
+ * @param end Ending node
+ * @param requiredNodes Set of nodes that must be visited on each path
+ * @return List of all distinct paths that visit all required nodes
+ */
+fun <T> findPathsWithRequiredNodes(
+    graph: Map<T, List<T>>,
+    start: T,
+    end: T,
+    requiredNodes: Set<T>
+): List<List<T>> {
+    val allPaths = mutableListOf<List<T>>()
+
+    fun findPaths(current: T, currentPath: List<T>, visitedRequired: Set<T>) {
+        val newPath = currentPath + current
+        val newVisited = if (current in requiredNodes) visitedRequired + current else visitedRequired
+
+        // Base case: reached the end
+        if (current == end) {
+            if (newVisited == requiredNodes) {
+                allPaths.add(newPath)
+            }
+            return
+        }
+
+        // Get neighbors, or empty list if no outgoing edges
+        val neighbors = graph[current] ?: emptyList()
+
+        // Recursively explore all neighbors
+        neighbors.forEach { neighbor ->
+            findPaths(neighbor, newPath, newVisited)
+        }
+    }
+
+    findPaths(start, emptyList(), emptySet())
+    return allPaths
+}
+
+/**
+ * Counts all paths from start to end in a DAG that visit all required nodes.
+ * Uses memoization with state tracking - much faster than generating all paths.
+ *
+ * @param graph Map from node to list of adjacent nodes
+ * @param start Starting node
+ * @param end Ending node
+ * @param requiredNodes Set of nodes that must be visited on each path
+ * @return Total number of distinct paths that visit all required nodes
+ */
+fun <T> countPathsWithRequiredNodes(
+    graph: Map<T, List<T>>,
+    start: T,
+    end: T,
+    requiredNodes: Set<T>
+): Long {
+    // State: (current node, set of required nodes visited so far)
+    data class State(val node: T, val visited: Set<T>)
+
+    val memo = mutableMapOf<State, Long>()
+
+    fun countPaths(current: T, visitedRequired: Set<T>): Long {
+        // Update visited required nodes if current is required
+        val newVisited = if (current in requiredNodes) visitedRequired + current else visitedRequired
+
+        // Base case: reached the end
+        if (current == end) {
+            return if (newVisited == requiredNodes) 1L else 0L
+        }
+
+        // Check memo cache
+        val state = State(current, newVisited)
+        memo[state]?.let { return it }
+
+        // Get neighbors, or empty list if no outgoing edges
+        val neighbors = graph[current] ?: emptyList()
+
+        // Sum all paths from neighbors to end
+        val pathCount = neighbors.sumOf { neighbor -> countPaths(neighbor, newVisited) }
+
+        // Cache and return
+        memo[state] = pathCount
+        return pathCount
+    }
+
+    return countPaths(start, emptySet())
+}
+
